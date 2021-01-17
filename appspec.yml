@@ -12,7 +12,6 @@ files:
     # 기존에 파일들이 있으면 덮어쓸지를 결정합니다.
     # 현재 yes 라고 했으니 파일들을 덮어쓰게 됩니다.
     overwrite: yes
-
 permissions:
   - object: /
     pattern: "**"
