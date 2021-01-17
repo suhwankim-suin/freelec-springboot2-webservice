@@ -18,6 +18,28 @@ cache:
 # 여기서는 프로젝트 내부에 둔 gradlew을 통해 clean & build 를 수행합니다.
 script: "./gradlew clean build"
 
+# deploy 명령어가 실행되기 전에 수행된니다.
+# CodeDeploy 는 Jar 파일은 인식하지 못하므로 Jar+ 기타설정파일들을 모아 압축(zip) 합니다.
+before_deploy:
+  - zip -r freelec-springboot2-webservice *
+  # deploy 라는 디렉토리를 Travis CI 가 실행중인 위치에서 생성합니다.
+  - mkdir -p deploy
+  #  freelec-springboot2-webservice.zip 파일을 deploy/freelec-springboot2-webservice.zip 이동시킵니다.
+  - mv freelec-springboot2-webservice.zip deploy/freelec-springboot2-webservice.zip
+
+# S3로 파일 업로드 혹은 CodeDeploy로 배포 등 외부 서비스와 연동될 행위들을 선언합니다.
+deploy:
+  - provider: s3
+    access_key_id: $AWS_ACCESS_KEY #Travis repo settings에 설정된 값
+    secret_access_key: $AWS_SECRET_KEY # Travis repo settings에 설정된 값
+    bucket: suhwankim-freelec-springboot-build # S3 버킷
+    region: ap-northeast-2
+    skip_cleanup: true
+    acl : private #zip 파일 접근을 private으로
+    # 해당위치의 파일들만 S3로 전송합니다.
+    local_dir: deploy #before_deploy 에서 생성한 디렉토리
+    wait-until-deployed : true
+
 #CI 실행완료시 메일로 알람
 #Travis CI 실행 완료시 자동으로 알람이 가도록 설정합니다.
 notifications:
